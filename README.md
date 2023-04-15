@@ -1,10 +1,24 @@
 # EVAL
 
 > **EVAL(Elastic Versatile Agent with Langchain) will execute all your requests. Like the eval method!**
+>
+> You don't have to think about how. If you tell them the results you want, they'll search, code, run, and test the Internet themselves, and they'll return the final results.
 
 https://user-images.githubusercontent.com/19206046/229892113-481437b7-a332-4e0c-bfb3-d2c97c9035be.mp4
 
-You don't have to think about how. If you tell them the results you want, they'll search, code, run, and test the Internet themselves, and they'll return the final results.
+EVAL Making a full-fledged web application with multiple files
+
+https://user-images.githubusercontent.com/51526347/230061897-b3479405-8ebd-45ab-a432-6506730242b9.mov
+
+EVAL Making a UI for itself
+
+#### [EVAL-BOT](https://github.com/eval-bot)
+
+EVAL's self-managed github account. EVAL does everything except for signup and bio setting.
+
+### Examples
+
+[Here](examples/) is an example.
 
 ### EVAL's FEATURE
 
@@ -48,10 +62,11 @@ We also don't know what tools EVAL will create. Every day, It will create the ri
 
 ## Usage
 
-1. environments settings
-2. `docker-compose up -d`
+1. Environment variables
+2. Run with docker-compose
+3. Send request to EVAL
 
-### Environment
+### 1. Environment Variables
 
 You need to write some environment variables in the `.env` file. Refer [.env.example](.env.example) if you don't know how to format it.
 
@@ -65,10 +80,11 @@ Manatory envs are required in order to serve EVAL.
 
 Each optional env has default value, so you don't need to set unless you want to change it.
 
-- `PORT` - port (default: 8000)
+- `EVAL_PORT` - port (default: 8000)
 - `SERVER` - server address (default: http://localhost:8000)
 - `LOG_LEVEL` - INFO | DEBUG (default: INFO)
 - `BOT_NAME` - give it a name! (default: Orca)
+- `MODEL_NAME` - model name for GPT (default: gpt-4)
 
 **For More Tools**
 
@@ -80,8 +96,51 @@ Some tools requires environment variables. Set envs depend on which tools you wa
   - `BING_SEARCH_URL`
   - `BING_SUBSCRIPTION_KEY`
 
+### 2. Run with docker-compose
+
+- There are 2 services in docker-compose.yml
+  - `eval` - without GPU, much lighter
+    ```bash
+    docker-compose up --build eval
+    ```
+  - `eval.gpu` - with GPU, for multi-modal conversation
+    ```bash
+    docker-compose up --build eval.gpu
+    ```
+- The one with GPU is much heavier and unstable for now because of the massive dependencies. We recommend you to use the one without GPU if you don't need multi-modal conversation.
+
+### 3. Send request to EVAL
+
+- Use the Web GUI to use EVAL in ease
+
+  - Go to `http://localhost:8000` in your browser
+    <img src="assets/gui.png" />
+
+- Or you can manually send request to EVAL with APIs.
+
+  - `POST /api/execute`
+
+    - `session` - session id
+    - `files` - urls of file inputs
+    - `prompt` - prompt
+
+    - examples
+
+      ```bash
+      curl -X POST -H "Content-Type: application/json" -d '{"session": "sessionid", "files": [], "prompt": "Hi there!"}' http://localhost:8000/api/execute
+      ```
+
+      ```bash
+      http POST http://localhost:8000/api/execute session=sessionid files:='[]' prompt="Hi there!"
+      ```
+
+- It also supports asynchronous execution. You can use `POST /api/execute/async` instead of `POST /api/execute`, with same body.
+
+  - It returns `id` of the execution. Use `GET /api/execute/async/{id}` to get the result.
+
 ## TODO
 
+- [ ] GUI
 - [ ] memory saving
 - [ ] session manage
 - [ ] convert to alpaca
